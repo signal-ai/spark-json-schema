@@ -202,6 +202,7 @@
     "string",
     "number",
     "nullable",
-    "boolean"
+    "boolean",
+    "decimal"
   ]
 }

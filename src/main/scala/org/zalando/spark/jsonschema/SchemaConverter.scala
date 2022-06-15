@@ -14,7 +14,7 @@ import scala.io.Source
  * to the type given in the schema. If this is not possible the whole row will be null (!).
  * A field can be null if its type is a 2-element array, one of which is "null". The converted
  * schema doesn't check for 'enum' fields, i.e. fields which are limited to a given set.
- * It also doesn't check for required fields or if additional properties are set to true
+ * It also doesn't check for additional properties are set to true
  * or false. If a field is specified in the schema, than you can select it and it will
  * be null if missing. If a field is not in the schema, it cannot be selected even if
  * given in the dataset.
@@ -24,7 +24,6 @@ case class SchemaType(typeName: String, nullable: Boolean, precision: Option[Int
 private case class NullableDataType(dataType: DataType, nullable: Boolean)
 
 object SchemaConverter {
-
   val SchemaFieldName = "name"
   val SchemaFieldType = "type"
   val SchemaFieldId = "id"
@@ -36,6 +35,7 @@ object SchemaConverter {
   val Decimal = "decimal"
   val Precision = "precision"
   val Range = "range"
+  val Required = "required"
   val TypeMap = Map(
     "string" -> StringType,
     "number" -> DoubleType,
@@ -54,35 +54,31 @@ object SchemaConverter {
   }
   var definitions: JsObject = JsObject(Seq.empty)
   private var isStrictTypingEnabled: Boolean = true
-
   def disableStrictTyping(): SchemaConverter.type = {
     setStrictTyping(false)
   }
-
   def enableStrictTyping(): SchemaConverter.type = {
     setStrictTyping(true)
   }
-
   private def setStrictTyping(b: Boolean) = {
     isStrictTypingEnabled = b
     this
   }
-
   def convertContent(schemaContent: String): StructType = convert(parseSchemaJson(schemaContent))
-
   def convert(inputPath: String): StructType = convert(loadSchemaJson(inputPath))
-
   def convert(inputSchema: JsObject): StructType = {
     definitions = (inputSchema \ Definitions).asOpt[JsObject].getOrElse(definitions)
     val name = getJsonName(inputSchema).getOrElse(SchemaRoot)
     val typeName = getJsonType(inputSchema, name).typeName
     if (name == SchemaRoot && typeName == "object") {
-      val properties = (inputSchema \ SchemaStructContents).asOpt[JsObject].getOrElse(
+      //TODO validation do something with this
+      (inputSchema \ SchemaStructContents).asOpt[JsObject].getOrElse(
         throw new NoSuchElementException(
           s"Root level of schema needs to have a [$SchemaStructContents]-field"
         )
       )
-      convertJsonStruct(new StructType, properties, properties.keys.toList)
+      //End validation do something with this
+      convertJsonStruct(new StructType, inputSchema)
     } else {
       throw new IllegalArgumentException(
         s"schema needs root level called <$SchemaRoot> and root type <object>. " +
@@ -90,9 +86,7 @@ object SchemaConverter {
       )
     }
   }
-
   def getJsonName(json: JsValue): Option[String] = (json \ SchemaFieldName).asOpt[String]
-
   def getJsonId(json: JsValue): Option[String] = (json \ SchemaFieldId).asOpt[String]
 
   def getDecimal(json: JsValue, nullable: Boolean): SchemaType = {
@@ -111,7 +105,6 @@ object SchemaConverter {
 
   def getJsonType(json: JsObject, name: String): SchemaType = {
     val id = getJsonId(json).getOrElse(name)
-
     (json \ SchemaFieldType).getOrElse(JsNull) match {
       case JsString(s) => getSimpleType(json, s, nullable = false)
       case JsArray(array) =>
@@ -143,33 +136,38 @@ object SchemaConverter {
       )
     }
   }
-
-  private def parseSchemaJson(schemaContent: String) = Json.parse(schemaContent).as[JsObject]
-
+  private def parseSchemaJson(schemaContent: String): JsObject = Json.parse(schemaContent).as[JsObject]
   def loadSchemaJson(filePath: String): JsObject = {
     Option(getClass.getResource(filePath)) match {
       case Some(relPath) => parseSchemaJson(Source.fromURL(relPath).mkString)
       case None => throw new IllegalArgumentException(s"Path can not be reached: $filePath")
     }
   }
-
-  @tailrec
-  private def convertJsonStruct(schema: StructType, json: JsObject, jsonKeys: List[String]): StructType = {
-    jsonKeys match {
-      case Nil => schema
-      case head :: tail =>
-        val enrichedSchema = addJsonField(schema, (json \ head).as[JsObject], head)
-        convertJsonStruct(enrichedSchema, json, tail)
+  private def convertJsonStruct(schema: StructType, objectDefinition: JsObject): StructType = {
+    val properties = (JsPath \ SchemaStructContents).asSingleJson(objectDefinition) match {
+      case JsDefined(v) => v.as[JsObject]
+      case _: JsUndefined => JsObject(Seq.empty)
+    }
+    val requiredProperies: Seq[String] = ((JsPath \ Required).asSingleJson(objectDefinition) match {
+      case JsDefined(v) => v.as[JsArray]
+      case _: JsUndefined => JsArray(Seq.empty)
+    }).as[Seq[String]]
+    properties.keys.toList.foldLeft(schema) {
+      (seedSchema, key) =>
+        addJsonField(
+          seedSchema,
+          (properties \ key).as[JsObject],
+          key,
+          requiredProperies.exists(k => k.equals(key))
+        )
     }
   }
-
   def traversePath(loc: List[String], path: JsPath): JsPath = {
     loc match {
       case head :: tail => traversePath(tail, path \ head)
       case Nil => path
     }
   }
-
   private def checkRefs(inputJson: JsObject): JsObject = {
     val schemaRef = (inputJson \ Reference).asOpt[JsString]
     schemaRef match {
@@ -191,15 +189,11 @@ object SchemaConverter {
       case None => inputJson
     }
   }
-
-  private def addJsonField(schema: StructType, inputJson: JsObject, name: String): StructType = {
-
+  private def addJsonField(schema: StructType, inputJson: JsObject, name: String, isRequired: Boolean): StructType = {
     val json = checkRefs(inputJson)
     val fieldType = getFieldType(json, name)
-
-    schema.add(getJsonName(json).getOrElse(name), fieldType.dataType, nullable = fieldType.nullable)
+    schema.add(getJsonName(json).getOrElse(name), fieldType.dataType, nullable = fieldType.nullable || (!isRequired))
   }
-
   private def getFieldType(json: JsObject, name: String): NullableDataType = {
     val fieldType = getJsonType(json, name)
     assert(
@@ -207,7 +201,6 @@ object SchemaConverter {
       s"Unknown field type {${fieldType.typeName}}, possible values are: ${TypeMap.keySet}"
     )
     TypeMap(fieldType.typeName) match {
-
       case DecimalType => (fieldType.precision, fieldType.range) match {
         case (Some(prec), Some(range)) => NullableDataType(DataTypes.createDecimalType(prec, range), fieldType.nullable)
         case _ => NullableDataType(DataTypes.createDecimalType(), fieldType.nullable)
@@ -223,19 +216,12 @@ object SchemaConverter {
         NullableDataType(dataType, fieldType.nullable)
 
       case StructType =>
-        val dataType = getDataType(json, JsPath \ SchemaStructContents)
+        val dataType = getDataType(json)
         NullableDataType(dataType, fieldType.nullable)
     }
   }
-
-  private def getDataType(inputJson: JsObject, contentPath: JsPath): DataType = {
+  private def getDataType(inputJson: JsObject): DataType = {
     val json = checkRefs(inputJson)
-
-    val content = contentPath.asSingleJson(json) match {
-      case JsDefined(v) => v.as[JsObject]
-      case _: JsUndefined => JsObject(Seq.empty)
-    }
-
-    convertJsonStruct(new StructType, content, content.keys.toList)
+    convertJsonStruct(new StructType, inputJson)
   }
 }

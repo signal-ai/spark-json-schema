@@ -1,0 +1,62 @@
+version: 2.1
+
+executors:
+  base:
+    docker:
+      - image: cimg/base:2022.06
+        auth:
+          # from org-global context
+          username: $DOCKERHUB_USER
+          password: $DOCKERHUB_PASS
+        environment:
+          DOCKER_BUILDKIT: "1"
+          BUILDKIT_PROGRESS: plain
+
+jobs:
+  build:
+    executor: base
+    steps:
+      - checkout
+
+      - run:
+          name: Install SDKMAN!
+          command: |
+            curl -s "https://get.sdkman.io?rcupdate=false" | bash
+            echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
+
+      - restore_cache:
+          keys:
+            - v1-sdkman-{{ checksum ".sdkmanrc" }}
+            - v1-sdkman-
+
+      - run:
+          name: Install Tools
+          command: sdk env install
+
+      - save_cache:
+          key: v1-sdkman-{{ checksum ".sdkmanrc" }}
+          paths:
+            - /home/circleci/.sdkman/archives
+
+      - restore_cache:
+          keys:
+            - v1-sbt-{{ checksum "build.sbt" }}
+            - v1-sbt
+
+      - run: sbt clean update
+
+      - save_cache:
+          key: v1-sbt-{{ checksum "build.sbt" }}
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.sbt"
+            - "~/.m2"
+
+      - run: sbt clean coverage test coverageReport scapegoat
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - build:
+          context: org-global

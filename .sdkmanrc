@@ -1,0 +1,6 @@
+# Enable auto-env through the sdkman_auto_env config
+# Add key=value pairs of SDKs to use below
+#
+java=8.312.07.1-amzn
+sbt=0.13.18
+scala=2.12.10

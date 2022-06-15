@@ -1,40 +1,39 @@
 name := "spark-json-schema"
 
-version in ThisBuild := "0.6.4"
-organization := "org.zalando"
+ThisBuild / version := "0.6.4-1"
+organization := "com.signal-ai"
 
 scalaVersion := "2.12.10"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.0.1"  % Provided
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.1"
-libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.11.2"
-dependencyOverrides ++= Set("com.fasterxml.jackson.core" % "jackson-databind" % "2.11.2")
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.2.1"  % Provided
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.2"
+libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % "test"
 
-scapegoatVersion := "1.3.0"
+ThisBuild / scapegoatVersion := "1.4.5"
 scapegoatIgnoredFiles := Seq(s"${target.value}.*.scala")
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
-//pom extra info
+// pom extra info
 publishMavenStyle := true
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases" at nexus + "service/local/staging/deploy/maven2")
-}
-
-publishArtifact in Test := false
+githubOwner := "signal-ai"
+githubRepository := "spark-json-schema"
+githubTokenSource := TokenSource.Or(
+  // Injected during a github workflow for publishing
+  TokenSource.Environment("GITHUB_TOKEN"),
+  // safe to assume this will be set in all our devs environments, usually /bin/bash, doesn't matter what it is to prevent local errors
+  TokenSource.Environment("SHELL"),
+)
+Test / publishArtifact := false
 
 pomExtra := (
   <scm>
-    <url>git@github.com:zalando-incubator/spark-json-schema.git</url>
-    <developerConnection>scm:git:git@github.com:zalando-incubator/spark-json-schema.git</developerConnection>
-    <connection>scm:git:https://github.com/zalando-incubator/spark-json-schema.git</connection>
+    <url>git@github.com:signal-ai/spark-json-schema.git</url>
+    <developerConnection>scm:git:git@github.com:signal-ai/spark-json-schema.git</developerConnection>
+    <connection>scm:git:https://github.com/signal-ai/spark-json-schema.git</connection>
   </scm>
   <developers>
     <developer>

@@ -15,6 +15,9 @@ executors:
 jobs:
   build:
     executor: base
+    parameters:
+      publish:
+        type: boolean
     steps:
       - checkout
 
@@ -54,9 +57,28 @@ jobs:
 
       - run: sbt clean coverage test coverageReport scapegoat
 
+      - when:
+          condition: << parameters.publish >>
+          steps:
+            - run: sbt publish
+
 workflows:
   version: 2
   test:
     jobs:
       - build:
+          name: build_and_publish
+          publish: true
+          filters:
+            branches:
+              only: &publish_branches
+                - master
+                - main
+          context: org-global
+
+      - build:
+          publish: false
+          filters:
+            branches:
+              ignore: *publish_branches
           context: org-global

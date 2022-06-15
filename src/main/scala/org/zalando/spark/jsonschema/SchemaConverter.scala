@@ -45,8 +45,7 @@ object SchemaConverter {
     "decimal" -> DecimalType,
     "timestamp" -> DataTypes.TimestampType,
     "object" -> StructType,
-    "array" -> ArrayType
-  )
+    "array" -> ArrayType)
   object DecimalNames {
     val Decimal = "decimal"
     val Precision = "precision"
@@ -74,16 +73,13 @@ object SchemaConverter {
       //TODO validation do something with this
       (inputSchema \ SchemaStructContents).asOpt[JsObject].getOrElse(
         throw new NoSuchElementException(
-          s"Root level of schema needs to have a [$SchemaStructContents]-field"
-        )
-      )
+          s"Root level of schema needs to have a [$SchemaStructContents]-field"))
       //End validation do something with this
       convertJsonStruct(new StructType, inputSchema)
     } else {
       throw new IllegalArgumentException(
         s"schema needs root level called <$SchemaRoot> and root type <object>. " +
-          s"Current root is <$name> and type is <$typeName>"
-      )
+          s"Current root is <$name> and type is <$typeName>")
     }
   }
   def getJsonName(json: JsValue): Option[String] = (json \ SchemaFieldName).asOpt[String]
@@ -119,21 +115,18 @@ object SchemaConverter {
               .map(i => getSimpleType(json, i.as[String], nullable = nullable))
               .getOrElse {
                 throw new IllegalArgumentException(
-                  s"Incorrect definition of a nullable parameter at <$id>"
-                )
+                  s"Incorrect definition of a nullable parameter at <$id>")
               }
           case _ if isStrictTypingEnabled =>
             throw new IllegalArgumentException(
-              s"Unsupported type definition <${array.toString}> in schema at <$id>"
-            )
+              s"Unsupported type definition <${array.toString}> in schema at <$id>")
           case _ => // Default to string as it is the "safest" type
             SchemaType("string", nullable = nullable)
         }
       case JsNull =>
         throw new IllegalArgumentException(s"No <$SchemaFieldType>-field in schema at <$id>")
       case t => throw new IllegalArgumentException(
-        s"Unsupported type <${t.toString}> in schema at <$id>"
-      )
+        s"Unsupported type <${t.toString}> in schema at <$id>")
     }
   }
   private def parseSchemaJson(schemaContent: String): JsObject = Json.parse(schemaContent).as[JsObject]
@@ -158,8 +151,7 @@ object SchemaConverter {
           seedSchema,
           (properties \ key).as[JsObject],
           key,
-          requiredProperies.exists(k => k.equals(key))
-        )
+          requiredProperies.exists(k => k.equals(key)))
     }
   }
   def traversePath(loc: List[String], path: JsPath): JsPath = {
@@ -175,8 +167,7 @@ object SchemaConverter {
         val searchDefinitions = Definitions + "/"
         val defIndex = loc.value.indexOf(searchDefinitions) match {
           case -1 => throw new NoSuchElementException(
-            s"Field with name [$Reference] requires path with [$searchDefinitions]"
-          )
+            s"Field with name [$Reference] requires path with [$searchDefinitions]")
           case i: Int => i + searchDefinitions.length
         }
         val pathNodes = loc.value.drop(defIndex).split("/").toList
@@ -198,8 +189,7 @@ object SchemaConverter {
     val fieldType = getJsonType(json, name)
     assert(
       TypeMap.keySet.contains(fieldType.typeName),
-      s"Unknown field type {${fieldType.typeName}}, possible values are: ${TypeMap.keySet}"
-    )
+      s"Unknown field type {${fieldType.typeName}}, possible values are: ${TypeMap.keySet}")
     TypeMap(fieldType.typeName) match {
       case DecimalType => (fieldType.precision, fieldType.range) match {
         case (Some(prec), Some(range)) => NullableDataType(DataTypes.createDecimalType(prec, range), fieldType.nullable)

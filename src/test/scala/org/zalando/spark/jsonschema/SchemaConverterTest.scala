@@ -2,28 +2,26 @@ package org.zalando.spark.jsonschema
 
 import org.apache.spark.sql.AnalysisException
 import org.apache.spark.sql.types._
-import org.scalatest.{ BeforeAndAfter, FunSuite, Matchers }
+import org.scalatest.BeforeAndAfter
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.funsuite.AnyFunSuite
 import org.zalando.spark.jsonschema.SparkTestEnv._
 
 import scala.util.Try
 
-class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
+class SchemaConverterTest extends AnyFunSuite with Matchers with BeforeAndAfter {
 
   val expectedStruct = StructType(Array(
     StructField("object", StructType(Array(
       StructField("item1", StringType, nullable = false),
-      StructField("item2", StringType, nullable = false)
-    )), nullable = false),
+      StructField("item2", StringType, nullable = false))), nullable = false),
     StructField("array", ArrayType(StructType(Array(
       StructField("itemProperty1", StringType, nullable = true),
-      StructField("itemProperty2", DoubleType, nullable = true)
-    )), containsNull = false), nullable = false),
+      StructField("itemProperty2", DoubleType, nullable = true))), containsNull = false), nullable = false),
     StructField("structure", StructType(Array(
       StructField("nestedArray", ArrayType(StructType(Array(
         StructField("key", StringType, nullable = true),
-        StructField("value", LongType, nullable = true)
-      )), containsNull = false), nullable = true)
-    )), nullable = false),
+        StructField("value", LongType, nullable = true))), containsNull = false), nullable = true))), nullable = false),
     StructField("integer", LongType, nullable = false),
     StructField("string", StringType, nullable = false),
     StructField("number", DoubleType, nullable = false),
@@ -34,8 +32,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
     StructField("decimal_default", DecimalType(10, 0), nullable = true),
     StructField("decimal_nullable", DecimalType(38, 18), nullable = true),
     StructField("timestamp", DataTypes.TimestampType, nullable = true),
-    StructField("additionalProperty", StringType, nullable = true)
-  ))
+    StructField("additionalProperty", StringType, nullable = true)))
 
   before {
     SchemaConverter.enableStrictTyping()
@@ -62,16 +59,14 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
 
     val jsonString = sparkSession.sparkContext.parallelize(Seq(
       """{"name": "aaa", "address": {}, "foo": "bar"}""",
-      """{"name": "bbb", "address": {}}"""
-    ))
+      """{"name": "bbb", "address": {}}"""))
 
     // without SchemaConverter
     val dbNoSchema = sparkSession.read.json(jsonString)
     assert(dbNoSchema.schema != schema)
     assert(dbNoSchema.schema === StructType(Array(
       StructField("foo", StringType, nullable = true),
-      StructField("name", StringType, nullable = true)
-    )))
+      StructField("name", StringType, nullable = true))))
     assert(dbNoSchema.select("name").collect()(0)(0) === "aaa")
     intercept[AnalysisException] {
       dbNoSchema.select("address")
@@ -95,12 +90,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
     val expected = StructType(Array(
       StructField("name", StringType, nullable = false),
       StructField("addressA", StructType(Array(
-        StructField("zip", StringType, nullable = true)
-      )), nullable = false),
+        StructField("zip", StringType, nullable = true))), nullable = false),
       StructField("addressB", StructType(Array(
-        StructField("zip", StringType, nullable = true)
-      )), nullable = true)
-    ))
+        StructField("zip", StringType, nullable = true))), nullable = true)))
 
     assert(schema === expected)
   }
@@ -118,11 +110,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
             }
           }
         }
-      """
-    )
+      """)
     val expected = StructType(Array(
-      StructField("address", StructType(Seq.empty), nullable = false)
-    ))
+      StructField("address", StructType(Seq.empty), nullable = false)))
 
     assert(schema === expected)
   }
@@ -133,8 +123,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
       "number" -> DoubleType,
       "float" -> FloatType,
       "integer" -> LongType,
-      "boolean" -> BooleanType
-    )
+      "boolean" -> BooleanType)
     typeMap.foreach {
       case p @ (key, datatype) =>
         val schema = SchemaConverter.convertContent(
@@ -152,11 +141,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-        )
+        """)
         val expected = StructType(Array(
-          StructField("array", ArrayType(datatype, containsNull = false), nullable = false)
-        ))
+          StructField("array", ArrayType(datatype, containsNull = false), nullable = false)))
 
         assert(schema === expected)
     }
@@ -182,11 +169,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
     val expected = StructType(Array(
-      StructField("array", ArrayType(ArrayType(StringType, containsNull = false), containsNull = false), nullable = false)
-    ))
+      StructField("array", ArrayType(ArrayType(StringType, containsNull = false), containsNull = false), nullable = false)))
 
     assert(schema === expected)
   }
@@ -208,11 +193,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
     val expected = StructType(Array(
-      StructField("array", ArrayType(StructType(Seq.empty), containsNull = false), nullable = false)
-    ))
+      StructField("array", ArrayType(StructType(Seq.empty), containsNull = false), nullable = false)))
 
     assert(schema === expected)
   }
@@ -240,11 +223,9 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
     val expected = StructType(Array(
-      StructField("array", ArrayType(StructType(Seq(StructField("name", StringType, nullable = false))), containsNull = false), nullable = false)
-    ))
+      StructField("array", ArrayType(StructType(Seq(StructField("name", StringType, nullable = false))), containsNull = false), nullable = false)))
 
     assert(schema === expected)
   }
@@ -263,8 +244,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
                 }
               }
             }
-          """
-      )
+          """)
     }
   }
 
@@ -284,8 +264,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
                 }
               }
             }
-          """
-      )
+          """)
     }
   }
 
@@ -295,8 +274,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
       "number" -> DoubleType,
       "float" -> FloatType,
       "integer" -> LongType,
-      "boolean" -> BooleanType
-    )
+      "boolean" -> BooleanType)
     typeMap.foreach {
       case (name, atype) =>
         val schema = SchemaConverter.convertContent(
@@ -314,12 +292,10 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-        )
+        """)
 
         val expected = StructType(Array(
-          StructField("array", ArrayType(atype, containsNull = true), nullable = false)
-        ))
+          StructField("array", ArrayType(atype, containsNull = true), nullable = false)))
 
         assert(schema === expected)
     }
@@ -341,12 +317,10 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
 
     val expected = StructType(Array(
-      StructField("array", ArrayType(StringType, containsNull = false), nullable = false)
-    ))
+      StructField("array", ArrayType(StringType, containsNull = false), nullable = false)))
 
     assert(schema === expected)
   }
@@ -373,14 +347,11 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
 
     val expected = StructType(Array(
       StructField("array", ArrayType(
-        StructType(Seq(StructField("prop", StringType, nullable = false))), containsNull = true
-      ), nullable = false)
-    ))
+        StructType(Seq(StructField("prop", StringType, nullable = false))), containsNull = true), nullable = false)))
 
     assert(schema === expected)
   }
@@ -400,12 +371,10 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
 
     val expected = StructType(Array(
-      StructField("array", ArrayType(StringType, containsNull = false), nullable = true)
-    ))
+      StructField("array", ArrayType(StringType, containsNull = false), nullable = true)))
 
     assert(schema === expected)
   }
@@ -423,8 +392,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
                 }
               }
             }
-          """
-      )
+          """)
 
     }
   }
@@ -442,12 +410,10 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
               }
             }
           }
-        """
-    )
+        """)
 
     val expected = StructType(Array(
-      StructField("prop", StringType, nullable = false)
-    ))
+      StructField("prop", StringType, nullable = false)))
 
     assert(schema === expected)
   }
@@ -465,8 +431,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
                 }
               }
             }
-          """
-      )
+          """)
     }
   }
 
@@ -483,8 +448,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
                 }
               }
             }
-          """
-      )
+          """)
     }
   }
 
@@ -501,8 +465,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
             }
           }
         }
-      """
-      )
+      """)
     }
     assertThrows[IllegalArgumentException] {
       val schema = SchemaConverter.convertContent(
@@ -516,8 +479,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
             }
           }
         }
-      """
-      )
+      """)
     }
   }
 
@@ -533,8 +495,7 @@ class SchemaConverterTest extends FunSuite with Matchers with BeforeAndAfter {
            }
          }
        }
-    """
-    )
+    """)
     assert(schema.fields(0) == StructField("size", LongType, nullable = true))
   }
 }

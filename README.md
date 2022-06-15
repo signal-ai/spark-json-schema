@@ -1,4 +1,4 @@
-[![MIT licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/zalando-incubator/spark-json-schema/master/LICENSE)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/signal-ai/spark-json-schema/master/LICENSE)
 
 # spark-json-schema
 
@@ -19,6 +19,7 @@ The fork includes the following changes:
 
 - merged add types <https://github.com/zalando-incubator/spark-json-schema/pull/49>
 - merged adding support for required fields <https://github.com/zalando-incubator/spark-json-schema/issues/41>
+- updated dependencies
 
 The version number reflects the original Zalando version, with a second version number for the release number of this fork, e.g. 0.6.1-1 is 1 release ahead of 0.6.1.
 

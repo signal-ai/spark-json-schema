@@ -31,7 +31,7 @@ Include the library under the following coordinates:
 libraryDependencies += "com.signal-ai" %% "spark-json-schema" % "0.6.1-1"
 ```
 
-Ensure you have setup your package manager to read from the Github artifact repository: <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry>.
+Ensure you have setup your package manager to read from the Github artifact repository <https://github.com/signal-ai/spark-json-schema/packages>. See <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry> for instructions.
 
 Parse a given json-schema file by providing the path to the input file.
 This file should be relative to the resources folder:

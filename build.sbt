@@ -1,6 +1,6 @@
 name := "spark-json-schema"
 
-ThisBuild / version := "0.6.4-2-SNAPSHOT"
+ThisBuild / version := "0.6.4-2"
 organization := "com.signal_ai"
 
 scalaVersion := "2.12.10"
@@ -30,11 +30,6 @@ githubTokenSource := TokenSource.Or(
 Test / publishArtifact := false
 
 pomExtra := (
-  <scm>
-    <url>git@github.com:signal-ai/spark-json-schema.git</url>
-    <developerConnection>scm:git:git@github.com:signal-ai/spark-json-schema.git</developerConnection>
-    <connection>scm:git:https://github.com/signal-ai/spark-json-schema.git</connection>
-  </scm>
   <developers>
     <developer>
       <name>Henning-Ulrich Esser</name>

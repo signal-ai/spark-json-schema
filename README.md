@@ -28,7 +28,7 @@ The version number reflects the original Zalando version, with a second version 
 Include the library under the following coordinates:
 
 ```scala
-libraryDependencies += "com.signal-ai" %% "spark-json-schema" % "0.6.1-1"
+libraryDependencies += "com.signal-ai" %% "spark-json-schema" % "0.6.1-2"
 ```
 
 Ensure you have setup your package manager to read from the Github artifact repository <https://github.com/signal-ai/spark-json-schema/packages>. See <https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry> for instructions.

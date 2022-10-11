@@ -4,3 +4,4 @@ logs
 **/build/
 **/node_modules/
 **/target/
+.bsp

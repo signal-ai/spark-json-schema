@@ -1,13 +1,13 @@
 name := "spark-json-schema"
 
-ThisBuild / version := "0.6.4-3-SNAPSHOT"
-organization := "com.signal_ai"
+ThisBuild / version := "0.6.4-3"
+organization := "com.signal-ai"
 
 scalaVersion := "2.12.10"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.2.1"  % Provided
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.2"
-libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.3"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.0"  % Provided
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.3"
+libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.13.4"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % "test"
 

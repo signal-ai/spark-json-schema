@@ -3,7 +3,8 @@ name := "spark-json-schema"
 ThisBuild / version := "0.6.4-4-SNAPSHOT"
 organization := "com.signal-ai"
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.17"
+crossScalaVersions := Seq("2.12.17", "2.13.10")
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.3.0"  % Provided
 libraryDependencies += "com.typesafe.play" %% "play-json" % "2.9.3"
@@ -11,7 +12,7 @@ libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" 
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % "test"
 
-ThisBuild / scapegoatVersion := "1.4.5"
+ThisBuild / scapegoatVersion := "2.1.1"
 scapegoatIgnoredFiles := Seq(s"${target.value}.*.scala")
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))

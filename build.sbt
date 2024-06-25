@@ -3,8 +3,8 @@ name := "spark-json-schema"
 ThisBuild / version := "0.6.4-5-SNAPSHOT"
 organization := "com.signal-ai"
 
-scalaVersion := "2.12.17"
-crossScalaVersions := Seq("2.12.17", "2.13.10")
+scalaVersion := "2.12.19"
+crossScalaVersions := Seq("2.12.19", "2.13.14")
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.5.0"  % Provided
 libraryDependencies += "org.playframework" %% "play-json" % "3.0.4"
@@ -12,7 +12,7 @@ libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" 
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 
-ThisBuild / scapegoatVersion := "2.1.1"
+ThisBuild / scapegoatVersion := "2.1.6"
 scapegoatIgnoredFiles := Seq(s"${target.value}.*.scala")
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
@@ -29,6 +29,11 @@ githubTokenSource := TokenSource.Or(
   TokenSource.Environment("SHELL"),
 )
 Test / publishArtifact := false
+
+Test / fork := true
+Test / javaOptions += "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
+
+scalacOptions ++= Seq("-java-output-version", "8")
 
 pomExtra := (
   <developers>

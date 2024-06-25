@@ -63,7 +63,6 @@ jobs:
             - run: sbt publish
 
 workflows:
-  version: 2
   test:
     jobs:
       - build:

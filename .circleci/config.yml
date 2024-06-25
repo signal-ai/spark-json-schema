@@ -55,12 +55,12 @@ jobs:
             - "~/.sbt"
             - "~/.m2"
 
-      - run: sbt clean coverage test coverageReport scapegoat
+      - run: sbt clean coverage +test coverageReport scapegoat
 
       - when:
           condition: << parameters.publish >>
           steps:
-            - run: sbt publish
+            - run: sbt +publish
 
 workflows:
   test:

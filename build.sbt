@@ -1,6 +1,6 @@
 name := "spark-json-schema"
 
-ThisBuild / version := "0.6.4-5-SNAPSHOT"
+ThisBuild / version := "0.6.4-5"
 organization := "com.signal-ai"
 
 scalaVersion := "2.12.19"

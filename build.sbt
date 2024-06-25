@@ -1,6 +1,6 @@
 name := "spark-json-schema"
 
-ThisBuild / version := "0.6.4-6-SNAPSHOT"
+ThisBuild / version := "0.6.4-5"
 organization := "com.signal-ai"
 
 scalaVersion := "2.12.19"
@@ -33,6 +33,7 @@ Test / publishArtifact := false
 Test / fork := true
 Test / javaOptions += "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
 
+javacOptions ++= Seq("-target", "8")
 scalacOptions ++= Seq("-java-output-version", "8")
 
 pomExtra := (

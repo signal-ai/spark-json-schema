@@ -20,6 +20,7 @@ The fork includes the following changes:
 - merged add types <https://github.com/zalando-incubator/spark-json-schema/pull/49>
 - merged adding support for required fields <https://github.com/zalando-incubator/spark-json-schema/issues/41>
 - updated dependencies
+- cross compile for Scala 2.13.x
 
 The version number reflects the original Zalando version, with a second version number for the release number of this fork, e.g. 0.6.1-1 is 1 release ahead of 0.6.1.
 

@@ -7,7 +7,7 @@ scalaVersion := "2.12.17"
 crossScalaVersions := Seq("2.12.17", "2.13.10")
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.5.0"  % Provided
-libraryDependencies += "com.typesafe.play" %% "play-json" % "3.0.4"
+libraryDependencies += "org.playframework" %% "play-json" % "3.0.4"
 libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % "test"

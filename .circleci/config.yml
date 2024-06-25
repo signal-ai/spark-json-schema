@@ -3,7 +3,7 @@ version: 2.1
 executors:
   base:
     docker:
-      - image: cimg/base:2022.06
+      - image: cimg/base:2024.06
         auth:
           # from org-global context
           username: $DOCKERHUB_USER

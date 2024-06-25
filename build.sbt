@@ -34,7 +34,7 @@ Test / fork := true
 Test / javaOptions += "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
 
 javacOptions ++= Seq("-target", "8")
-scalacOptions ++= Seq("-java-output-version", "8")
+scalacOptions ++= Seq("-target", "8")
 
 pomExtra := (
   <developers>

@@ -10,7 +10,7 @@ libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.5.0"  % Provided
 libraryDependencies += "org.playframework" %% "play-json" % "3.0.4"
 libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.1"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.12" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.18" % "test"
 
 ThisBuild / scapegoatVersion := "2.1.1"
 scapegoatIgnoredFiles := Seq(s"${target.value}.*.scala")
